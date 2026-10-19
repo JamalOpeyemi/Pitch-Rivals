@@ -305,3 +305,115 @@ h1 {
   margin: 8px 0 24px;
   color: var(--muted);
 }
+
+/* ===== MOBILE LAYOUT: both cards visible without scrolling ===== */
+@media (max-width: 699px) {
+  /* tighter page */
+  body {
+    padding: 12px;
+  }
+
+  h1 {
+    margin: 4px 0 8px;
+    font-size: 1.2rem;
+  }
+
+  .scoreboard {
+    margin: 6px 0;
+    gap: 24px;
+    font-size: 0.85rem;
+  }
+
+  .scoreboard span {
+    font-size: 1.4rem;
+  }
+
+  #round-info {
+    font-size: 0.7rem;
+  }
+
+  /* reserve room for two lines so the cards never jump when the text changes */
+  #message {
+    margin: 4px 0;
+    font-size: 0.9rem;
+    min-height: 2.6em;
+  }
+
+  /* the big change: two columns, side by side */
+  .battlefield {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    max-width: 420px;
+    margin: 10px auto;
+  }
+
+  .slot-label {
+    margin-bottom: 4px;
+    font-size: 0.65rem;
+  }
+
+  /* compact cards */
+  .card {
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .card-top {
+    gap: 8px;
+  }
+
+  .overall {
+    font-size: 1.7rem;
+  }
+
+  .position {
+    font-size: 0.65rem;
+  }
+
+  .portrait {
+    height: 64px;
+    font-size: 1.3rem;
+    border-radius: 10px;
+  }
+
+  .player-name {
+    margin: 8px 0 2px;
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+
+  .club {
+    margin: 0 0 8px;
+    font-size: 0.7rem;
+  }
+
+  /* stats stay easy to tap */
+  .stats {
+    gap: 4px;
+    padding-top: 8px;
+  }
+
+  .stat {
+    min-height: 44px;
+    padding: 4px 2px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 1rem;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+  }
+
+  .card.face-down::after {
+    font-size: 3rem;
+  }
+
+  .legendary {
+    box-shadow: 0 0 12px rgba(184, 107, 255, 0.45);
+  }
+}
