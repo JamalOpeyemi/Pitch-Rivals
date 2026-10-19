@@ -99,12 +99,17 @@ const STAT_LABELS = {
   physicality: "PHY"
 };
 
+// ===== GAME SETTINGS =====                                  // NEW
+const TOTAL_ROUNDS = 5;                                        // NEW
+
 // ===== GAME STATE: the variables that remember what is happening =====
 let playerScore = 0;
 let cpuScore = 0;
 let currentPlayer = null;  // the player's card this round
 let currentCpu = null;     // the computer's card this round
 let roundOver = false;     // becomes true once a stat has been chosen
+let currentRound = 0;      // NEW: which round we are on
+let deck = [];             // NEW: the shuffled cards for this match
 
 // ===== PAGE ELEMENTS we will need to change =====
 const playerSlot = document.getElementById("player-slot");
@@ -113,8 +118,15 @@ const messageEl = document.getElementById("message");
 const playerScoreEl = document.getElementById("player-score");
 const cpuScoreEl = document.getElementById("cpu-score");
 const nextBtn = document.getElementById("next-btn");
+const gameEl = document.getElementById("game");                // NEW
+const resultsEl = document.getElementById("results");          // NEW
+const roundInfoEl = document.getElementById("round-info");     // NEW
+const resultTitleEl = document.getElementById("result-title"); // NEW
+const finalScoreEl = document.getElementById("final-score");   // NEW
+const resultTextEl = document.getElementById("result-text");   // NEW
+const playAgainBtn = document.getElementById("play-again-btn");// NEW
 
-// ===== FUNCTION: get a player's initials =====
+// ===== FUNCTION: get a player's initials (unchanged) =====
 function getInitials(name) {
   return name
     .split(" ")
@@ -122,8 +134,7 @@ function getInitials(name) {
     .join("");
 }
 
-// ===== FUNCTION: build one card from one player =====
-// faceDown = true builds a hidden card (no rarity colors, so nothing is given away)
+// ===== FUNCTION: build one card from one player (unchanged) =====
 function createCard(player, faceDown = false) {
   const card = document.createElement("article");
   card.className = faceDown ? "card face-down" : "card " + player.rarity;
@@ -154,43 +165,59 @@ function createCard(player, faceDown = false) {
   return card;
 }
 
-// ===== FUNCTION: pick a random player, skipping one if needed =====
-function pickRandomPlayer(excluded) {
-  const available = players.filter((player) => player !== excluded);
-  const index = Math.floor(Math.random() * available.length);
-  return available[index];
+// ===== FUNCTION: shuffle a list, like shuffling a deck of cards =====  // NEW
+function shuffle(list) {
+  const copy = [...list];   // make a copy so the original list is untouched
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));   // random spot from 0 to i
+    [copy[i], copy[j]] = [copy[j], copy[i]];         // swap the two cards
+  }
+  return copy;
 }
 
-// ===== FUNCTION: highlight the chosen stat on a card =====
+// ===== FUNCTION: highlight the chosen stat on a card (unchanged) =====
 function highlightStat(slot, statKey) {
   const statEl = slot.querySelector(`[data-stat="${statKey}"]`);
   statEl.classList.add("chosen");
 }
 
-// ===== FUNCTION: refresh the scoreboard numbers =====
+// ===== FUNCTION: refresh the scoreboard numbers (unchanged) =====
 function updateScoreboard() {
   playerScoreEl.textContent = playerScore;
   cpuScoreEl.textContent = cpuScore;
 }
 
-// ===== FUNCTION: start a new round =====
+// ===== FUNCTION: start a brand new match =====                         // NEW
+function startMatch() {
+  playerScore = 0;
+  cpuScore = 0;
+  currentRound = 0;
+  deck = shuffle(players);   // a freshly shuffled deck of all 12 players
+  updateScoreboard();
+
+  resultsEl.hidden = true;   // hide the results screen
+  gameEl.hidden = false;     // show the game screen
+  startRound();
+}
+
+// ===== FUNCTION: start a new round =====                               // CHANGED
 function startRound() {
+  currentRound++;
   roundOver = false;
   nextBtn.hidden = true;
 
-  currentPlayer = pickRandomPlayer(null);
-  currentCpu = pickRandomPlayer(currentPlayer);
+  // deal one card each from the top of the deck (no repeats)
+  currentPlayer = deck.pop();
+  currentCpu = deck.pop();
 
   const playerCard = createCard(currentPlayer);
   const cpuCard = createCard(currentCpu, true);
 
-  // clear the old cards, then place the new ones
   playerSlot.innerHTML = "";
   cpuSlot.innerHTML = "";
   playerSlot.appendChild(playerCard);
   cpuSlot.appendChild(cpuCard);
 
-  // make the player's stats clickable
   playerCard.classList.add("pickable");
   const statEls = playerCard.querySelectorAll(".stat");
   statEls.forEach((statEl) => {
@@ -199,29 +226,27 @@ function startRound() {
     });
   });
 
+  roundInfoEl.textContent = `Round ${currentRound} of ${TOTAL_ROUNDS}`;
   messageEl.textContent = "Your move: tap a stat on your card!";
 }
 
-// ===== FUNCTION: play the round once a stat is chosen =====
+// ===== FUNCTION: play the round once a stat is chosen =====            // CHANGED (end)
 function playRound(statKey) {
-  if (roundOver) return;   // ignore extra clicks
+  if (roundOver) return;
   roundOver = true;
 
   const playerValue = currentPlayer.stats[statKey];
   const cpuValue = currentCpu.stats[statKey];
   const label = STAT_LABELS[statKey];
 
-  // flip the computer's card face up
   const cpuCard = cpuSlot.firstElementChild;
   cpuCard.classList.remove("face-down");
   cpuCard.classList.add(currentCpu.rarity);
 
-  // lock the player's card and highlight the chosen stat on both cards
   playerSlot.firstElementChild.classList.remove("pickable");
   highlightStat(playerSlot, statKey);
   highlightStat(cpuSlot, statKey);
 
-  // decide the winner
   if (playerValue > cpuValue) {
     playerScore++;
     messageEl.textContent = `You win! ${label}: ${playerValue} vs ${cpuValue}`;
@@ -233,9 +258,44 @@ function playRound(statKey) {
   }
 
   updateScoreboard();
+
+  // on the last round the button says "See Results" instead
+  nextBtn.textContent = currentRound === TOTAL_ROUNDS ? "See Results" : "Next Round";
   nextBtn.hidden = false;
 }
 
+// ===== FUNCTION: show the final results screen =====                   // NEW
+function showResults() {
+  gameEl.hidden = true;
+  resultsEl.hidden = false;
+
+  if (playerScore > cpuScore) {
+    resultTitleEl.textContent = "Victory!";
+    resultTitleEl.className = "result-title win";
+    resultTextEl.textContent = "You beat the computer.";
+  } else if (playerScore < cpuScore) {
+    resultTitleEl.textContent = "Defeat";
+    resultTitleEl.className = "result-title lose";
+    resultTextEl.textContent = "The computer takes this one.";
+  } else {
+    resultTitleEl.textContent = "Draw";
+    resultTitleEl.className = "result-title draw";
+    resultTextEl.textContent = "All square. Time for a rematch?";
+  }
+
+  finalScoreEl.textContent = `${playerScore} – ${cpuScore}`;
+}
+
+// ===== BUTTONS =====                                                   // CHANGED
+nextBtn.addEventListener("click", () => {
+  if (currentRound === TOTAL_ROUNDS) {
+    showResults();
+  } else {
+    startRound();
+  }
+});
+
+playAgainBtn.addEventListener("click", startMatch);
+
 // ===== START THE GAME =====
-nextBtn.addEventListener("click", startRound);
-startRound();
+startMatch();

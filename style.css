@@ -235,8 +235,8 @@ h1 {
   color: #0b1220;
 }
 
-/* ===== NEXT ROUND BUTTON ===== */
-#next-btn {
+#next-btn,
+#play-again-btn {
   padding: 14px 32px;
   border: none;
   border-radius: 999px;
@@ -247,6 +247,61 @@ h1 {
   cursor: pointer;
 }
 
-#next-btn:hover {
+#next-btn:hover,
+#play-again-btn:hover {
   filter: brightness(1.1);
+}
+
+/* ===== SAFETY NET: "hidden" must always win ===== */
+[hidden] {
+  display: none !important;
+}
+
+/* ===== ROUND INFO ===== */
+#round-info {
+  margin: 0 0 4px;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ===== RESULTS SCREEN ===== */
+#results {
+  max-width: 340px;
+  margin: 60px auto;
+  padding: 32px 24px;
+  border: 2px solid #2c3a5a;
+  border-radius: 20px;
+  background: linear-gradient(160deg, #1a2744, #0e1422);
+}
+
+.results-label {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.result-title {
+  margin: 8px 0;
+  font-size: 2.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.result-title.win  { color: #4ade80; }
+.result-title.lose { color: #f87171; }
+.result-title.draw { color: #f5c542; }
+
+#final-score {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 800;
+}
+
+#result-text {
+  margin: 8px 0 24px;
+  color: var(--muted);
 }

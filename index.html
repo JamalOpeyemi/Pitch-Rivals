@@ -10,25 +10,38 @@
   <main id="app">
     <h1>Pitch Rivals</h1>
 
-    <section class="scoreboard">
-      <div>You <span id="player-score">0</span></div>
-      <div>CPU <span id="cpu-score">0</span></div>
+    <!-- SCREEN 1: the game -->
+    <div id="game">
+      <section class="scoreboard">
+        <div>You <span id="player-score">0</span></div>
+        <div>CPU <span id="cpu-score">0</span></div>
+      </section>
+
+      <p id="round-info"></p>
+      <p id="message"></p>
+
+      <section class="battlefield">
+        <div class="slot">
+          <p class="slot-label">You</p>
+          <div id="player-slot"></div>
+        </div>
+        <div class="slot">
+          <p class="slot-label">Computer</p>
+          <div id="cpu-slot"></div>
+        </div>
+      </section>
+
+      <button id="next-btn" hidden>Next Round</button>
+    </div>
+
+    <!-- SCREEN 2: the results -->
+    <section id="results" hidden>
+      <p class="results-label">Full time</p>
+      <h2 id="result-title" class="result-title"></h2>
+      <p id="final-score"></p>
+      <p id="result-text"></p>
+      <button id="play-again-btn">Play Again</button>
     </section>
-
-    <p id="message"></p>
-
-    <section class="battlefield">
-      <div class="slot">
-        <p class="slot-label">You</p>
-        <div id="player-slot"></div>
-      </div>
-      <div class="slot">
-        <p class="slot-label">Computer</p>
-        <div id="cpu-slot"></div>
-      </div>
-    </section>
-
-    <button id="next-btn" hidden>Next Round</button>
   </main>
 
   <script src="script.js"></script>
