@@ -126,39 +126,66 @@ const finalScoreEl = document.getElementById("final-score");   // NEW
 const resultTextEl = document.getElementById("result-text");   // NEW
 const playAgainBtn = document.getElementById("play-again-btn");// NEW
 
-// ===== FUNCTION: get a player's initials (unchanged) =====
-function getInitials(name) {
-  return name
-    .split(" ")
-    .map((word) => word[0])
-    .join("");
+// ===== FUNCTION: turn a club name into a color (same club = same color) =====
+function getClubHue(club) {
+  let hash = 0;
+  for (const char of club) {
+    hash = (hash * 31 + char.charCodeAt(0)) % 360;
+  }
+  return hash;   // a number from 0 to 359, used as a color on the color wheel
 }
 
-// ===== FUNCTION: build one card from one player (unchanged) =====
+// ===== FUNCTION: build the portrait (real image if we have one, silhouette if not) =====
+function createPortrait(player) {
+  if (player.portrait) {
+    return `<img class="portrait-img" src="${player.portrait}" alt="${player.name}">`;
+  }
+
+  const hue = getClubHue(player.club);
+  return `
+    <svg class="portrait-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+      <path d="M8 100 C8 74 28 64 50 64 C72 64 92 74 92 100 Z" fill="hsl(${hue} 55% 42%)"/>
+      <path d="M38 66 L50 82 L62 66 Z" fill="rgba(255,255,255,0.28)"/>
+      <rect x="42" y="50" width="16" height="18" rx="7" fill="#232b45"/>
+      <ellipse cx="50" cy="36" rx="15" ry="18" fill="#2f3858"/>
+    </svg>
+  `;
+}
+
+// ===== FUNCTION: build one card from one player =====
 function createCard(player, faceDown = false) {
   const card = document.createElement("article");
   card.className = faceDown ? "card face-down" : "card " + player.rarity;
 
+  // find the highest stat so we can highlight it
+  const bestValue = Math.max(...Object.values(player.stats));
+
   let statsHTML = "";
   for (const key in player.stats) {
+    const value = player.stats[key];
+    const bestClass = value === bestValue ? " best" : "";
     statsHTML += `
-      <div class="stat" data-stat="${key}">
-        <span class="stat-value">${player.stats[key]}</span>
+      <div class="stat${bestClass}" data-stat="${key}">
         <span class="stat-label">${STAT_LABELS[key]}</span>
+        <span class="stat-value">${value}</span>
       </div>
     `;
   }
 
   card.innerHTML = `
-    <div class="card-top">
+    <div class="card-shine"></div>
+    <div class="card-art">
+      ${createPortrait(player)}
       <div class="card-rating">
         <span class="overall">${player.overall}</span>
         <span class="position">${player.position}</span>
       </div>
-      <div class="portrait">${getInitials(player.name)}</div>
+      <span class="rarity-tag">${player.rarity}</span>
     </div>
-    <h2 class="player-name">${player.name}</h2>
-    <p class="club">${player.club}</p>
+    <div class="card-info">
+      <h2 class="player-name">${player.name}</h2>
+      <p class="club">${player.club}</p>
+    </div>
     <div class="stats">${statsHTML}</div>
   `;
 
