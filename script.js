@@ -1,5 +1,3 @@
-// ===== SETUP: find the status message on the page =====
-const statusMessage = document.getElementById("status-message");
 
 // ===== PLAYER DATA =====
 // This is an array (a list) of objects. Each object is one player.
@@ -91,6 +89,64 @@ players.forEach((player) => {
   player.overall = calculateOverall(player.stats);
 });
 
-// ===== TEST: prove it worked =====
-statusMessage.textContent = players.length + " players loaded ✅";
-console.log(players[0]);
+// ===== SHORT LABELS for the six stats =====
+const STAT_LABELS = {
+  pace: "PAC",
+  shooting: "SHO",
+  passing: "PAS",
+  dribbling: "DRI",
+  defending: "DEF",
+  physicality: "PHY"
+};
+
+// ===== FUNCTION: get a player's initials (used until we have portraits) =====
+function getInitials(name) {
+  return name
+    .split(" ")                  // "Danny Marsh" -> ["Danny", "Marsh"]
+    .map((word) => word[0])      // -> ["D", "M"]
+    .join("");                   // -> "DM"
+}
+
+// ===== FUNCTION: build one card from one player =====
+function createCard(player) {
+  const card = document.createElement("article");
+  card.className = "card " + player.rarity;   // e.g. "card gold"
+
+  // Build the six stat blocks
+  let statsHTML = "";
+  for (const key in player.stats) {
+    statsHTML += `
+      <div class="stat">
+        <span class="stat-value">${player.stats[key]}</span>
+        <span class="stat-label">${STAT_LABELS[key]}</span>
+      </div>
+    `;
+  }
+
+  // Fill the card with its content
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-rating">
+        <span class="overall">${player.overall}</span>
+        <span class="position">${player.position}</span>
+      </div>
+      <div class="portrait">${getInitials(player.name)}</div>
+    </div>
+    <h2 class="player-name">${player.name}</h2>
+    <p class="club">${player.club}</p>
+    <div class="stats">${statsHTML}</div>
+  `;
+
+  return card;
+}
+
+// ===== FUNCTION: show every player on the page =====
+function renderGallery() {
+  const gallery = document.getElementById("card-gallery");
+
+  players.forEach((player) => {
+    gallery.appendChild(createCard(player));
+  });
+}
+
+renderGallery();
