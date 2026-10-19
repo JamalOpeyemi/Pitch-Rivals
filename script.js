@@ -99,31 +99,45 @@ const STAT_LABELS = {
   physicality: "PHY"
 };
 
-// ===== FUNCTION: get a player's initials (used until we have portraits) =====
+// ===== GAME STATE: the variables that remember what is happening =====
+let playerScore = 0;
+let cpuScore = 0;
+let currentPlayer = null;  // the player's card this round
+let currentCpu = null;     // the computer's card this round
+let roundOver = false;     // becomes true once a stat has been chosen
+
+// ===== PAGE ELEMENTS we will need to change =====
+const playerSlot = document.getElementById("player-slot");
+const cpuSlot = document.getElementById("cpu-slot");
+const messageEl = document.getElementById("message");
+const playerScoreEl = document.getElementById("player-score");
+const cpuScoreEl = document.getElementById("cpu-score");
+const nextBtn = document.getElementById("next-btn");
+
+// ===== FUNCTION: get a player's initials =====
 function getInitials(name) {
   return name
-    .split(" ")                  // "Danny Marsh" -> ["Danny", "Marsh"]
-    .map((word) => word[0])      // -> ["D", "M"]
-    .join("");                   // -> "DM"
+    .split(" ")
+    .map((word) => word[0])
+    .join("");
 }
 
 // ===== FUNCTION: build one card from one player =====
-function createCard(player) {
+// faceDown = true builds a hidden card (no rarity colors, so nothing is given away)
+function createCard(player, faceDown = false) {
   const card = document.createElement("article");
-  card.className = "card " + player.rarity;   // e.g. "card gold"
+  card.className = faceDown ? "card face-down" : "card " + player.rarity;
 
-  // Build the six stat blocks
   let statsHTML = "";
   for (const key in player.stats) {
     statsHTML += `
-      <div class="stat">
+      <div class="stat" data-stat="${key}">
         <span class="stat-value">${player.stats[key]}</span>
         <span class="stat-label">${STAT_LABELS[key]}</span>
       </div>
     `;
   }
 
-  // Fill the card with its content
   card.innerHTML = `
     <div class="card-top">
       <div class="card-rating">
@@ -140,13 +154,88 @@ function createCard(player) {
   return card;
 }
 
-// ===== FUNCTION: show every player on the page =====
-function renderGallery() {
-  const gallery = document.getElementById("card-gallery");
-
-  players.forEach((player) => {
-    gallery.appendChild(createCard(player));
-  });
+// ===== FUNCTION: pick a random player, skipping one if needed =====
+function pickRandomPlayer(excluded) {
+  const available = players.filter((player) => player !== excluded);
+  const index = Math.floor(Math.random() * available.length);
+  return available[index];
 }
 
-renderGallery();
+// ===== FUNCTION: highlight the chosen stat on a card =====
+function highlightStat(slot, statKey) {
+  const statEl = slot.querySelector(`[data-stat="${statKey}"]`);
+  statEl.classList.add("chosen");
+}
+
+// ===== FUNCTION: refresh the scoreboard numbers =====
+function updateScoreboard() {
+  playerScoreEl.textContent = playerScore;
+  cpuScoreEl.textContent = cpuScore;
+}
+
+// ===== FUNCTION: start a new round =====
+function startRound() {
+  roundOver = false;
+  nextBtn.hidden = true;
+
+  currentPlayer = pickRandomPlayer(null);
+  currentCpu = pickRandomPlayer(currentPlayer);
+
+  const playerCard = createCard(currentPlayer);
+  const cpuCard = createCard(currentCpu, true);
+
+  // clear the old cards, then place the new ones
+  playerSlot.innerHTML = "";
+  cpuSlot.innerHTML = "";
+  playerSlot.appendChild(playerCard);
+  cpuSlot.appendChild(cpuCard);
+
+  // make the player's stats clickable
+  playerCard.classList.add("pickable");
+  const statEls = playerCard.querySelectorAll(".stat");
+  statEls.forEach((statEl) => {
+    statEl.addEventListener("click", () => {
+      playRound(statEl.dataset.stat);
+    });
+  });
+
+  messageEl.textContent = "Your move: tap a stat on your card!";
+}
+
+// ===== FUNCTION: play the round once a stat is chosen =====
+function playRound(statKey) {
+  if (roundOver) return;   // ignore extra clicks
+  roundOver = true;
+
+  const playerValue = currentPlayer.stats[statKey];
+  const cpuValue = currentCpu.stats[statKey];
+  const label = STAT_LABELS[statKey];
+
+  // flip the computer's card face up
+  const cpuCard = cpuSlot.firstElementChild;
+  cpuCard.classList.remove("face-down");
+  cpuCard.classList.add(currentCpu.rarity);
+
+  // lock the player's card and highlight the chosen stat on both cards
+  playerSlot.firstElementChild.classList.remove("pickable");
+  highlightStat(playerSlot, statKey);
+  highlightStat(cpuSlot, statKey);
+
+  // decide the winner
+  if (playerValue > cpuValue) {
+    playerScore++;
+    messageEl.textContent = `You win! ${label}: ${playerValue} vs ${cpuValue}`;
+  } else if (playerValue < cpuValue) {
+    cpuScore++;
+    messageEl.textContent = `Computer wins. ${label}: ${playerValue} vs ${cpuValue}`;
+  } else {
+    messageEl.textContent = `It's a tie! Both have ${playerValue} ${label}`;
+  }
+
+  updateScoreboard();
+  nextBtn.hidden = false;
+}
+
+// ===== START THE GAME =====
+nextBtn.addEventListener("click", startRound);
+startRound();

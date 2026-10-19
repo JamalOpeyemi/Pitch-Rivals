@@ -9,7 +9,26 @@
 <body>
   <main id="app">
     <h1>Pitch Rivals</h1>
-    <section id="card-gallery" class="gallery"></section>
+
+    <section class="scoreboard">
+      <div>You <span id="player-score">0</span></div>
+      <div>CPU <span id="cpu-score">0</span></div>
+    </section>
+
+    <p id="message"></p>
+
+    <section class="battlefield">
+      <div class="slot">
+        <p class="slot-label">You</p>
+        <div id="player-slot"></div>
+      </div>
+      <div class="slot">
+        <p class="slot-label">Computer</p>
+        <div id="cpu-slot"></div>
+      </div>
+    </section>
+
+    <button id="next-btn" hidden>Next Round</button>
   </main>
 
   <script src="script.js"></script>

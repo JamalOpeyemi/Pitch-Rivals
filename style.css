@@ -137,3 +137,116 @@ h1 {
   letter-spacing: 0.08em;
   color: var(--muted);
 }
+
+/* ===== SCOREBOARD ===== */
+.scoreboard {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin: 16px 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.scoreboard span {
+  margin-left: 8px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+#message {
+  min-height: 1.5em;
+  font-size: 1.05rem;
+}
+
+/* ===== BATTLEFIELD ===== */
+.battlefield {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  max-width: 340px;
+  margin: 24px auto;
+}
+
+.slot-label {
+  margin: 0 0 8px;
+  text-align: left;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* on wider screens, put the two cards side by side */
+@media (min-width: 700px) {
+  .battlefield {
+    grid-template-columns: 1fr 1fr;
+    max-width: 620px;
+  }
+}
+
+/* ===== FACE-DOWN CARD ===== */
+.card.face-down {
+  position: relative;
+  border-color: #5a6a8a;
+  background: linear-gradient(160deg, #222c40, #0e1422);
+}
+
+.card.face-down > * {
+  visibility: hidden;
+}
+
+.card.face-down::after {
+  content: "?";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  font-weight: 800;
+  color: #5a6a8a;
+}
+
+/* ===== STAT INTERACTION ===== */
+.stat {
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.pickable .stat {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.pickable .stat:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.stat.chosen {
+  background: var(--accent);
+  color: #0b1220;
+}
+
+.stat.chosen .stat-label {
+  color: #0b1220;
+}
+
+/* ===== NEXT ROUND BUTTON ===== */
+#next-btn {
+  padding: 14px 32px;
+  border: none;
+  border-radius: 999px;
+  background: #f5c542;
+  color: #0b1220;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#next-btn:hover {
+  filter: brightness(1.1);
+}
