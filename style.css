@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  padding: 24px;
+  background: #0b1220;
+  color: #ffffff;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+}
+
+#app {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
